@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ระบบจองห้องประชุมออนไลน์ Zoom</title>
+  <meta name="description" content="ระบบจองห้องประชุมออนไลน์ Zoom สำนักงานการศึกษาพระปริยัติธรรม แผนกสามัญศึกษา">
+  <meta name="theme-color" content="#10264a">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="จองห้อง Zoom">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --navy: #10264a; --brand: #1b3a6b; --gold: #f0a429; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: var(--navy); }
+    body { display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); font-family: 'Noto Sans Thai', 'Sarabun', 'Leelawadee UI', Tahoma, sans-serif; }
+    #app { flex: 1; width: 100%; border: 0; display: block; background: #f3f5fa; }
+
+    /* หน้าโหลด */
+    #splash { position: fixed; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+      padding: 24px; text-align: center; color: #fff; transition: opacity .35s ease;
+      background: radial-gradient(700px 380px at 90% 0%, rgba(240, 164, 41, .28), transparent 60%),
+                  radial-gradient(600px 360px at 0% 100%, rgba(42, 90, 160, .65), transparent 60%),
+                  linear-gradient(160deg, #10264a, #1b3a6b 60%, #2a5aa0); }
+    #splash.hide { opacity: 0; pointer-events: none; }
+    #splash img { width: 124px; height: 124px; border-radius: 50%; background: #fff; padding: 8px; box-shadow: 0 0 0 4px var(--gold), 0 12px 30px rgba(0, 0, 0, .3); }
+    #splash .t { font-size: 1.25rem; font-weight: 700; line-height: 1.35; }
+    #splash .s { color: #ffd98f; font-size: .95rem; line-height: 1.4; }
+    .spin { width: 34px; height: 34px; margin-top: 6px; border: 3px solid rgba(255, 255, 255, .25); border-top-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ไม่มีอินเทอร์เน็ต */
+    #offline { display: none; margin-top: 8px; max-width: 320px; color: #fff; background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .3);
+      border-radius: 14px; padding: 14px 16px; font-size: .95rem; line-height: 1.5; }
+    #offline button { margin-top: 10px; font: inherit; font-weight: 700; color: #2b1a00; background: var(--gold); border: 0; border-radius: 10px; padding: 8px 18px; cursor: pointer; }
+
+    /* ปุ่มติดตั้งแอป */
+    #install { position: fixed; z-index: 20; right: max(14px, env(safe-area-inset-right, 0px)); bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+      display: none; align-items: center; gap: 8px; max-width: calc(100vw - 28px); font: inherit; font-size: .9rem; font-weight: 700; color: #fff;
+      background: linear-gradient(135deg, #d9480f, #f59f00); border: 0; border-radius: 999px; padding: 10px 14px 10px 16px; box-shadow: 0 8px 24px rgba(0, 0, 0, .28); }
+    #install .x { margin-left: 4px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, .25); font-size: .8rem; }
+    #iosTip { position: fixed; z-index: 20; left: 14px; right: 14px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); display: none;
+      color: #10264a; background: #fff; border-radius: 16px; padding: 14px 16px; font-size: .92rem; line-height: 1.5; box-shadow: 0 10px 30px rgba(0, 0, 0, .3); }
+    #iosTip b { color: #1b3a6b; }
+    #iosTip button { float: right; margin: -4px -6px 0 8px; border: 0; background: none; font-size: 1.2rem; color: #667085; cursor: pointer; }
+    @media (prefers-reduced-motion: reduce) { .spin { animation: none; } #splash { transition: none; } }
+  </style>
+</head>
+<body>
+  <div id="splash" role="status" aria-live="polite">
+    <img src="icons/icon-192.png" alt="ตราสำนักงานการศึกษาพระปริยัติธรรม แผนกสามัญศึกษา">
+    <div class="t">ระบบจองห้องประชุมออนไลน์ Zoom</div>
+    <div class="s">สำนักงานการศึกษาพระปริยัติธรรม แผนกสามัญศึกษา</div>
+    <div class="spin" id="spin" aria-label="กำลังโหลด"></div>
+    <div id="offline">ไม่ได้เชื่อมต่ออินเทอร์เน็ต<br>กรุณาตรวจสอบการเชื่อมต่อแล้วลองใหม่<br><button type="button" onclick="location.reload()">ลองใหม่</button></div>
+  </div>
+
+  <iframe id="app" title="ระบบจองห้องประชุมออนไลน์ Zoom" allow="clipboard-write; clipboard-read; fullscreen"></iframe>
+
+  <button type="button" id="install"><span>ติดตั้งแอปลงเครื่อง</span><span class="x" id="installClose" aria-label="ปิด">✕</span></button>
+  <div id="iosTip"><button type="button" id="iosClose" aria-label="ปิด">✕</button>ติดตั้งแอปบน iPhone/iPad: แตะปุ่ม <b>แชร์</b> ด้านล่าง แล้วเลือก <b>"เพิ่มไปยังหน้าจอโฮม"</b></div>
+
+  <script>
+    // ระบบจองบน Google Apps Script (Deployment เดิม URL ไม่เปลี่ยน)
+    var EXEC = 'https://script.google.com/a/macros/ogb.go.th/s/AKfycbwd1-orMZqI4Sd2eGClznKUfYmD-wzx4neZuZhsFOyJCLFuOBVVENjYhmbYLQj-ihE5Ig/exec';
+
+    var q = new URLSearchParams(location.search);
+    var page = q.get('page') === 'admin' ? 'admin' : '';
+    var tab = (q.get('tab') || '').replace(/[^a-z]/g, '');
+    var frame = document.getElementById('app');
+    var splash = document.getElementById('splash');
+
+    function hideSplash() { splash.classList.add('hide'); }
+    function showOffline() {
+      document.getElementById('spin').style.display = 'none';
+      document.getElementById('offline').style.display = 'block';
+    }
+
+    if (!navigator.onLine) {
+      showOffline();
+    } else {
+      frame.src = EXEC + '?pwa=1' + (page ? '&page=admin' : '') + (tab ? '#' + tab : '');
+      frame.addEventListener('load', function () { setTimeout(hideSplash, 600); });
+      setTimeout(hideSplash, 15000);
+    }
+    window.addEventListener('online', function () { if (!frame.src) location.reload(); });
+
+    // ระบบจองแจ้งว่ามีเวอร์ชันใหม่ -> โหลดแอปใหม่ที่หน้าเดิม
+    window.addEventListener('message', function (ev) {
+      var d = ev.data || {};
+      if (d.type !== 'zb-reload') return;
+      var url = './?' + (d.page === 'admin' ? 'page=admin&' : '') + (d.hash ? 'tab=' + encodeURIComponent(String(d.hash).replace(/[^a-z]/g, '')) : '');
+      location.replace(url.replace(/[?&]$/, ''));
+    });
+
+    // Service worker: ให้ติดตั้งเป็นแอปได้ และเปิดหน้าแอปได้เร็ว
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+    }
+
+    // ปุ่มติดตั้งแอป (Android / Windows: Chrome, Edge)  และคำแนะนำสำหรับ iPhone
+    function getFlag(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+    function setFlag(k) { try { localStorage.setItem(k, '1'); } catch (e) {} }
+    var standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    var deferred = null;
+    var installBtn = document.getElementById('install');
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault();
+      deferred = e;
+      if (!standalone && !getFlag('zb-install-dismissed')) installBtn.style.display = 'flex';
+    });
+    installBtn.addEventListener('click', function (ev) {
+      if (ev.target.id === 'installClose') { installBtn.style.display = 'none'; setFlag('zb-install-dismissed'); return; }
+      if (!deferred) return;
+      deferred.prompt();
+      deferred.userChoice.finally(function () { deferred = null; installBtn.style.display = 'none'; });
+    });
+    window.addEventListener('appinstalled', function () { installBtn.style.display = 'none'; });
+    var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (isIOS && !standalone && !getFlag('zb-ios-tip')) {
+      setTimeout(function () { document.getElementById('iosTip').style.display = 'block'; }, 3000);
+    }
+    document.getElementById('iosClose').addEventListener('click', function () {
+      document.getElementById('iosTip').style.display = 'none';
+      setFlag('zb-ios-tip');
+    });
+  </script>
+</body>
+</html>

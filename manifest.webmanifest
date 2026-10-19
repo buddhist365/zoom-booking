@@ -1,0 +1,26 @@
+{
+  "id": "./",
+  "name": "ระบบจองห้องประชุมออนไลน์ Zoom สำนักงานการศึกษาพระปริยัติธรรม แผนกสามัญศึกษา",
+  "short_name": "จองห้อง Zoom",
+  "description": "จองห้องประชุมออนไลน์ Zoom ตรวจสอบคิวว่าง และรับลิงก์การประชุม",
+  "lang": "th",
+  "start_url": "./?source=app",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#10264a",
+  "theme_color": "#10264a",
+  "categories": ["productivity", "business", "education"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "จองห้องประชุม", "short_name": "จองห้อง", "url": "./?tab=book", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "รับลิงก์การประชุม", "short_name": "รับลิงก์", "url": "./?tab=status", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "ระบบหลังบ้าน", "short_name": "หลังบ้าน", "url": "./?page=admin", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}
