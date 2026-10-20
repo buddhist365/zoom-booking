@@ -1,7 +1,7 @@
 // Service worker ของแอปจองห้องประชุม Zoom
 // เก็บไฟล์ของหน้าแอป (ไอคอน หน้าโหลด) ไว้ในเครื่อง เพื่อให้เปิดเร็วและติดตั้งเป็นแอปได้
 // ข้อมูลการจองโหลดจากระบบจริงทุกครั้ง (ไม่เก็บในเครื่อง)
-const CACHE = 'zb-shell-v2';
+const CACHE = 'zb-shell-v3';
 const SHELL = [
   './', './index.html', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-192.png', './icons/maskable-512.png',
