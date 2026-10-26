@@ -24,6 +24,7 @@ self.addEventListener('fetch', event => {
   const req = event.request;
   const url = new URL(req.url);
   if (req.method !== 'GET' || url.origin !== self.location.origin) return; // ระบบจองและไฟล์ภายนอก: ไม่แตะ
+  if (url.pathname.includes('/manuals/')) return; // ไฟล์คู่มือ PDF: โหลดจากเน็ตตรง ไม่เก็บแทนหน้าแอป
 
   if (req.mode === 'navigate') {
     // หน้าแอป: ใช้ของใหม่จากเน็ตก่อน ถ้าไม่มีเน็ตใช้ที่เก็บไว้
