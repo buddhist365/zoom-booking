@@ -107,6 +107,8 @@
 
     // ปุ่มติดตั้งแอป (Android / Windows: Chrome, Edge)  และคำแนะนำสำหรับ iPhone
     function getFlag(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+    // เปิดจาก QR Code ติดตั้งแอป (?install=1): แสดงปุ่ม/คำแนะนำติดตั้งเสมอ แม้เคยกดปิดไว้
+    if (q.get('install') === '1') { try { localStorage.removeItem('zb-install-dismissed'); localStorage.removeItem('zb-ios-tip'); } catch (e) {} }
     function setFlag(k) { try { localStorage.setItem(k, '1'); } catch (e) {} }
     var standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
     var deferred = null;
@@ -125,7 +127,7 @@
     window.addEventListener('appinstalled', function () { installBtn.style.display = 'none'; });
     var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     if (isIOS && !standalone && !getFlag('zb-ios-tip')) {
-      setTimeout(function () { document.getElementById('iosTip').style.display = 'block'; }, 3000);
+      setTimeout(function () { document.getElementById('iosTip').style.display = 'block'; }, q.get('install') === '1' ? 1200 : 3000);
     }
     document.getElementById('iosClose').addEventListener('click', function () {
       document.getElementById('iosTip').style.display = 'none';
